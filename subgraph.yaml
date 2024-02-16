@@ -1,0 +1,89 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: MainValueWallet
+    network: blast-testnet
+    source:
+      address: '0xB03c52613C84A74dfdE8916478A0a47DC93fC9C0'
+      abi: MainValueWallet
+      startBlock: 1652378
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - HistoryWallet
+      abis:
+        - name: MainValueWallet
+          file: ./abis/MainValueWallet.json
+      eventHandlers:
+        - event: Deposit(indexed address,indexed address,uint256)
+          handler: handleDeposit
+        - event: Withdraw(indexed address,indexed address,uint256)
+          handler: handleWithdraw
+        - event: TransferBetweenAccounts(indexed address,indexed address,uint256,indexed address)
+          handler: handleTransferBetweenAccounts
+      file: ./src/mainValueWallet.ts
+  - kind: ethereum
+    name: Factory
+    network: blast-testnet
+    source:
+      address: '0xEBC251868D83D81f0b8245D3aD6bBc3aaaf6a6d8'
+      abi: Factory
+      startBlock: 1652378
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - PrismFactory
+        - Pair
+        - Token
+      abis:
+        - name: Factory
+          file: ./abis/Factory.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: ./abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: ./abis/ERC20NameBytes.json
+      eventHandlers:
+        - event: PairCreated(indexed address,indexed address,address,uint256)
+          handler: handlePairCreated
+      file: ./src/factory.ts
+templates:
+  - kind: ethereum/contract
+    name: Pair
+    network: blast-testnet
+    source:
+      abi: Pair
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - CreateLimitOrder
+        - MarketOrder
+        - RemoveOrder
+        - SumMarketOrder
+        - UpdateOrder
+      abis:
+        - name: Pair
+          file: ./abis/Pair.json
+        - name: Factory
+          file: ./abis/Factory.json
+      eventHandlers:
+        - event: CreateLimitOrder(indexed address,indexed address,uint8,uint256,uint256,uint256)
+          handler: handleCreateLimitOrder
+        - event: MarketOrder(indexed address,indexed address,uint8,uint256,uint256,uint256,uint256)
+          handler: handleMarketOrder
+        - event: RemoveOrder(indexed address,indexed address,uint8,uint256,uint256,uint256,uint256,uint256)
+          handler: handleRemoveOrder
+        - event: RemoveOrderNoUpdateBalances(indexed address,indexed address,uint8,uint256,uint256,uint256,uint256,uint256)
+          handler: handleRemoveOrderNoUpdateBalances
+        - event: SumMarketOrder(indexed address,indexed address,uint8,uint256,uint256,uint256,uint256,uint256)
+          handler: handleSumMarketOrder
+      file: ./src/pair.ts
